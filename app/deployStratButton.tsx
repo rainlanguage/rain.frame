@@ -90,7 +90,7 @@ export default function DeployStratButton() {
     // approve token spend for orderbook contract
     const erc20Contract = new ethers.Contract(addOrderArgs.validOutputs[0].token, erc20Abi, signer);
     const approveTx  = await erc20Contract.approve(orderbokContractAddress, depositAmount);
-    await approveTx.wait(1); // wait at least 1 block for approve tx to get mined
+    await approveTx.wait(); // wait for approve tx to get mined
 
     // multicall tx
     const tx = await orderbookContract.connect(signer).multicall([addOrderData, depositData]);
