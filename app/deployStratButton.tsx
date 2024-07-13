@@ -42,11 +42,10 @@ export default function DeployStratButton() {
     const deployerContractAddress = "0xd58583e0C5C00C6DCF0137809EA58E9d55A72d66";
     const orderbokContractAddress = "0xb06202aA3Fe7d85171fB7aA5f17011d17E63f382";
 
-    const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/flare");
     const signer = useEthersSigner()!;
-    const deployerContract = new ethers.Contract(deployerContractAddress, allAbis, provider);
+    const deployerContract = new ethers.Contract(deployerContractAddress, allAbis, signer);
     
-    const orderbookContract = new Contract(orderbokContractAddress, allAbis, provider) as Contract & {
+    const orderbookContract = new Contract(orderbokContractAddress, allAbis, signer) as Contract & {
         addOrder: (config: any) => Promise<any>;
     };
 
@@ -58,7 +57,7 @@ export default function DeployStratButton() {
     // // example: parserContractAddress = await deployerContract.iParser();
     const parserContractAddress = await deployerContract.iParser();
 
-    const parserContract = new ethers.Contract(parserContractAddress, allAbis, provider);
+    const parserContract = new ethers.Contract(parserContractAddress, allAbis, signer);
     const { constants, bytecode } = await parserContract.parse(rainlangAsBytes);
     const addOrderArgs = {
         validInputs: [{
@@ -83,7 +82,7 @@ export default function DeployStratButton() {
     const addOrderData = orderbookContract.interface.encodeFunctionData("addOrder", [addOrderArgs]);
 
     // deposit amount
-    const depositAmount = "1000000000000000000"; // set desired deposit amount, should follow token decimals
+    const depositAmount = "1"; // set desired deposit amount, should follow token decimals
     // deposit tx data
     const depositData = orderbookContract.interface.encodeFunctionData(
         "deposit",
@@ -100,7 +99,7 @@ export default function DeployStratButton() {
     await approveTx.wait(); // wait for approve tx to get mined
 
     // multicall tx
-    const tx = await orderbookContract.connect(signer).multicall([addOrderData, depositData]);
+    const tx = await orderbookContract.multicall([addOrderData, depositData]);
     setTransactionResponse(tx);
   }
 
