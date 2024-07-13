@@ -4,6 +4,44 @@ import { ethers, Contract } from 'ethers';
 import { useState } from 'react';
 import { useEthersSigner } from './ethersToWagmi';
 
+export const allAbis = [
+    // used for getting parser address if not already known
+    "function iParser() external view returns (address)", 
+
+    // used for parsing rainlang for obv3
+    "function parse(bytes calldata data) external view returns (bytes calldata bytecode, uint256[] calldata constants)",
+
+    // orderbook v3 abis for adding order
+    "function addOrder(((address token, uint8 decimals, uint256 vaultId)[] validInputs, (address token, uint8 decimals, uint256 vaultId)[] validOutputs, (address deployer, bytes bytecode, uint256[] constants) evaluableConfig, bytes meta) config) returns (bool stateChanged)",
+
+    // for multicall
+    "function multicall(bytes[] calldata data) external returns (bytes[] memory results)",
+
+    // for depositing into a vault
+    "function deposit(address token, uint256 vaultId, uint256 amount) external",
+
+    // for withdrawing from vault, is pretty similar to deposit
+    "function withdraw(address token, uint256 vaultId, uint256 targetAmount) external"
+];
+
+export const erc20Abi = [
+    "function approve(address _spender, uint256 _value) public returns (bool success)"
+]
+
+export const deployerContractAddress = "0xd58583e0C5C00C6DCF0137809EA58E9d55A72d66";
+export const orderbokContractAddress = "0xb06202aA3Fe7d85171fB7aA5f17011d17E63f382";
+
+export const validInputs = [{
+    token: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
+    decimals: "18",
+    vaultId: "0xd995a9f40baabce2cdf6d783b2fe31bda4f8efa807703c0e3b0654aa6641874e",
+}];
+export const validOutputs = [{
+    token: "0x96B41289D90444B8adD57e6F265DB5aE8651DF29",
+    decimals: "6",
+    vaultId: "0x4960001e20a2694253c51fbeba336e502314185d3765c53db84fce6af7224fbc",
+}];
+
 export default function DeployStratButton() {
     const [transactionResponse, setTransactionResponse] = useState(null);
 
@@ -14,33 +52,6 @@ export default function DeployStratButton() {
             ethers.utils.hexlify(ethers.utils.toUtf8Bytes(data)).split("x")[1]
         );
     };
-
-    const allAbis = [
-        // used for getting parser address if not already known
-        "function iParser() external view returns (address)", 
-    
-        // used for parsing rainlang for obv3
-        "function parse(bytes calldata data) external view returns (bytes calldata bytecode, uint256[] calldata constants)",
-
-        // orderbook v3 abis for adding order
-        "function addOrder(((address token, uint8 decimals, uint256 vaultId)[] validInputs, (address token, uint8 decimals, uint256 vaultId)[] validOutputs, (address deployer, bytes bytecode, uint256[] constants) evaluableConfig, bytes meta) config) returns (bool stateChanged)",
-
-        // for multicall
-        "function multicall(bytes[] calldata data) external returns (bytes[] memory results)",
-
-        // for depositing into a vault
-        "function deposit(address token, uint256 vaultId, uint256 amount) external",
-
-        // for withdrawing from vault, is pretty similar to deposit
-        "function withdraw(address token, uint256 vaultId, uint256 targetAmount) external"
-    ];
-
-    const erc20Abi = [
-        "function approve(address _spender, uint256 _value) public returns (bool success)"
-    ]
-
-    const deployerContractAddress = "0xd58583e0C5C00C6DCF0137809EA58E9d55A72d66";
-    const orderbokContractAddress = "0xb06202aA3Fe7d85171fB7aA5f17011d17E63f382";
 
     const signer = useEthersSigner()!;
     const deployerContract = new ethers.Contract(deployerContractAddress, allAbis, signer);
@@ -60,16 +71,8 @@ export default function DeployStratButton() {
     const parserContract = new ethers.Contract(parserContractAddress, allAbis, signer);
     const { constants, bytecode } = await parserContract.parse(rainlangAsBytes);
     const addOrderArgs = {
-        validInputs: [{
-            token: "0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d",
-            decimals: "18",
-            vaultId: "0xd995a9f40baabce2cdf6d783b2fe31bda4f8efa807703c0e3b0654aa6641874e",
-        }],
-        validOutputs: [{
-            token: "0x96B41289D90444B8adD57e6F265DB5aE8651DF29",
-            decimals: "6",
-            vaultId: "0x4960001e20a2694253c51fbeba336e502314185d3765c53db84fce6af7224fbc",
-        }],
+        validInputs,
+        validOutputs,
         evaluableConfig: {
             deployer: deployerContractAddress,
             constants,
