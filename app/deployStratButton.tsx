@@ -11,7 +11,7 @@ export default function DeployStratButton() {
         return (
             "0x" +
             BigInt(0xff0a89c674ee7874n).toString(16).toLowerCase() +
-            ethers.hexlify(ethers.toUtf8Bytes(data)).split("x")[1]
+            ethers.utils.hexlify(ethers.utils.toUtf8Bytes(data)).split("x")[1]
         );
     };
 
@@ -29,8 +29,8 @@ export default function DeployStratButton() {
     const deployerContractAddress = "0xd58583e0C5C00C6DCF0137809EA58E9d55A72d66";
     const orderbokContractAddress = "0xb06202aA3Fe7d85171fB7aA5f17011d17E63f382";
 
-    const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/flare");
-    const signer = useEthersSigner();
+    const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/flare");
+    const signer = useEthersSigner()!;
     const deployerContract = new ethers.Contract(deployerContractAddress, allAbis, provider);
     
     const orderbookContract = new Contract(orderbokContractAddress, allAbis, provider) as Contract & {
@@ -38,7 +38,7 @@ export default function DeployStratButton() {
     };
 
     const rainlang = "using-words-from 0x31A76D8644612e0ABD1aF0D42909Ed57F16F608D 0xCE6ad0ba209e7D3B59Ddb8a63595193C11C3B0aB start-time: block-timestamp(),budget-per-day: 10,budget-per-second: div(budget-per-day 86400),time-elapsed: sub(now() start-time),budget-to-date: mul(time-elapsed budget-per-second),spent-so-far: get(order-hash()),spend-this-time: sub(budget-to-date spent-so-far),flr-usd: ftso-current-price-usd(\"FLR\" 3600),usd-flr: inv(flr-usd),max-output: spend-this-time,io-ratio: mul(0.9 usd-flr),:set(order-hash() add(spent-so-far spend-this-time)); :;";
-    const rainlangAsBytes = ethers.toUtf8Bytes(rainlang);
+    const rainlangAsBytes = ethers.utils.toUtf8Bytes(rainlang);
 
     const deployStrategy = async () => {
     // if not known, you can use the iParser() call to get them from deployerContract
