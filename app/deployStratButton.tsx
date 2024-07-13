@@ -24,7 +24,20 @@ export default function DeployStratButton() {
 
         // orderbook v3 abis for adding order
         "function addOrder(((address token, uint8 decimals, uint256 vaultId)[] validInputs, (address token, uint8 decimals, uint256 vaultId)[] validOutputs, (address deployer, bytes bytecode, uint256[] constants) evaluableConfig, bytes meta) config) returns (bool stateChanged)",
+
+        // for multicall
+        "function multicall(bytes[] calldata data) external returns (bytes[] memory results)",
+
+        // for depositing into a vault
+        "function deposit(address token, uint256 vaultId, uint256 amount) external",
+
+        // for withdrawing from vault, is pretty similar to deposit
+        "function withdraw(address token, uint256 vaultId, uint256 targetAmount) external"
     ];
+
+    const erc20Abi = [
+        "function approve(address _spender, uint256 _value) public returns (bool success)"
+    ]
 
     const deployerContractAddress = "0xd58583e0C5C00C6DCF0137809EA58E9d55A72d66";
     const orderbokContractAddress = "0xb06202aA3Fe7d85171fB7aA5f17011d17E63f382";
@@ -66,8 +79,28 @@ export default function DeployStratButton() {
         meta: encodeMeta(rainlang),
     };
 
-    // deploy the order
-    const tx = await orderbookContract.connect(signer).addOrder(addOrderArgs);
+    // addOrder tx data
+    const addOrderData = orderbookContract.interface.encodeFunctionData("addOrder", [addOrderArgs]);
+
+    // deposit amount
+    const depositAmount = "1000000000000000000"; // set desired deposit amount, should follow token decimals
+    // deposit tx data
+    const depositData = orderbookContract.interface.encodeFunctionData(
+        "deposit",
+        [
+            addOrderArgs.validOutputs[0].token,
+            addOrderArgs.validOutputs[0].vaultId,
+            depositAmount
+        ]
+    );
+
+    // approve token spend for orderbook contract
+    const erc20Contract = new ethers.Contract(addOrderArgs.validOutputs[0].token, erc20Abi, signer);
+    const approveTx  = await erc20Contract.approve(orderbokContractAddress, depositAmount);
+    await approveTx.wait(); // wait for approve tx to get mined
+
+    // multicall tx
+    const tx = await orderbookContract.connect(signer).multicall([addOrderData, depositData]);
     setTransactionResponse(tx);
   }
 
