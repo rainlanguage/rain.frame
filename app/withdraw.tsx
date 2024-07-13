@@ -29,13 +29,14 @@ export default function WithdrawButton() {
     }
 
     const getVaultBalance = async () => {
+        const signerAddress = await signer.getAddress();
         const WFLR = await orderbookContract.vaultBalance(
-            await signer.getAddress(),
+            signerAddress,
             validInputs[0].token,
             validInputs[0].vaultId,
         );
         const USDT = await orderbookContract.vaultBalance(
-            await signer.getAddress(),
+            signerAddress,
             validOutputs[0].token,
             validOutputs[0].vaultId,
         );
