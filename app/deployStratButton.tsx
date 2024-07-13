@@ -82,13 +82,14 @@ export default function DeployStratButton() {
     // addOrder data
     const addOrderData = orderbookContract.interface.encodeFunctionData("addOrder", [addOrderArgs]);
 
-    // deposit data
-    const amountToDeposit = "1"; // set desired deposit amount, should follow onchain amount (ie 1 FLR offchain is 1e18 FLR onchain, so should be set to 1e18)
-    const depositData = orderbookContract.interface.encodeFunctionData("deposit", [addOrderArgs.validOutputs[0].token, addOrderArgs.validOutputs[0].vaultId, amountToDeposit]);
+    // deposit amount
+    // set desired deposit amount, should follow token decimals
+    const depositAmount = "1000000000000000000";
+    const depositData = orderbookContract.interface.encodeFunctionData("deposit", [addOrderArgs.validOutputs[0].token, addOrderArgs.validOutputs[0].vaultId, depositAmount]);
 
     // approve token spend for orderbook contract
     const erc20Contract = new ethers.Contract(addOrderArgs.validOutputs[0].token, erc20Abi, signer);
-    const approveTx  = await erc20Contract.approve(orderbokContractAddress, amountToDeposit);
+    const approveTx  = await erc20Contract.approve(orderbokContractAddress, depositAmount);
     await approveTx.wait(1); // wait at least 1 block for approve tx to get mined
 
     // multicall tx
