@@ -2,6 +2,7 @@ import { getFrameMetadata } from 'frog/next';
 import type { Metadata } from 'next';
 import styles from './page.module.css';
 import DeployStratButton from './deployStratButton';
+import WithdrawButton from './withdraw';
 
 export async function generateMetadata(): Promise<Metadata> {
   const frameTags = await getFrameMetadata(
@@ -17,6 +18,7 @@ export default function Home() {
     <main className={styles.main}>
       <div>
         <DeployStratButton />
+        <WithdrawButton />
       </div>
     </main>
   )
