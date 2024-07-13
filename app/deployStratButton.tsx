@@ -83,7 +83,7 @@ export default function DeployStratButton() {
     const addOrderData = orderbookContract.interface.encodeFunctionData("addOrder", [addOrderArgs]);
 
     // deposit data
-    const amountToDeposit = "1"; // set desired deposit amount, should follow onchain amount (ie with following tokens decimals)
+    const amountToDeposit = "1"; // set desired deposit amount, should follow onchain amount (ie 1 FLR offchain is 1e18 FLR onchain, so should be set to 1e18)
     const depositData = orderbookContract.interface.encodeFunctionData("deposit", [addOrderArgs.validOutputs[0].token, addOrderArgs.validOutputs[0].vaultId, amountToDeposit]);
 
     // approve token spend for orderbook contract
