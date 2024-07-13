@@ -79,13 +79,20 @@ export default function DeployStratButton() {
         meta: encodeMeta(rainlang),
     };
 
-    // addOrder data
+    // addOrder tx data
     const addOrderData = orderbookContract.interface.encodeFunctionData("addOrder", [addOrderArgs]);
 
     // deposit amount
-    // set desired deposit amount, should follow token decimals
-    const depositAmount = "1000000000000000000";
-    const depositData = orderbookContract.interface.encodeFunctionData("deposit", [addOrderArgs.validOutputs[0].token, addOrderArgs.validOutputs[0].vaultId, depositAmount]);
+    const depositAmount = "1000000000000000000"; // set desired deposit amount, should follow token decimals
+    // deposit tx data
+    const depositData = orderbookContract.interface.encodeFunctionData(
+        "deposit",
+        [
+            addOrderArgs.validOutputs[0].token,
+            addOrderArgs.validOutputs[0].vaultId,
+            depositAmount
+        ]
+    );
 
     // approve token spend for orderbook contract
     const erc20Contract = new ethers.Contract(addOrderArgs.validOutputs[0].token, erc20Abi, signer);
