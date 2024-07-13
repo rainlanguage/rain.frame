@@ -1,6 +1,6 @@
 /** @jsxImportSource frog/jsx */
 
-import { Button, Frog, TextInput } from 'frog';
+import { Button, Frog } from 'frog';
 import { devtools } from 'frog/dev';
 import { handle } from 'frog/next';
 import { serveStatic } from 'frog/serve-static';
@@ -15,7 +15,7 @@ const app = new Frog({
 // export const runtime = 'edge'
 
 app.frame('/', (c) => {
-  const { buttonValue, inputText, status } = c
+  const { buttonValue, status } = c
   return c.res({
     image: (
       <div
@@ -47,12 +47,12 @@ app.frame('/', (c) => {
             whiteSpace: 'pre-wrap',
           }}
         >
-          Ape 1 USDC per day into FLR
+          Ape into wFLR with 1 eUSDT per day
         </div>
       </div>
     ),
     intents: [
-      status !== 'response' && <Button.Link href="http://localhost:3000/">Ape</Button.Link>,
+      !buttonValue && <Button.Link href="http://localhost:3000/">Ape</Button.Link>,
     ],
   })
 })
