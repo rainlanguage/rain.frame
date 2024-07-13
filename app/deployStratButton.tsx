@@ -31,7 +31,6 @@ export default function DeployStratButton() {
 
     const provider = new ethers.JsonRpcProvider("https://rpc.ankr.com/flare");
     const signer = useEthersSigner();
-    console.log(signer);
     const deployerContract = new ethers.Contract(deployerContractAddress, allAbis, provider);
     
     const orderbookContract = new Contract(orderbokContractAddress, allAbis, provider) as Contract & {

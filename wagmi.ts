@@ -5,7 +5,7 @@ import {
 
 export const config = getDefaultConfig({
   appName: 'RainbowKit demo',
-  projectId: 'YOUR_PROJECT_ID',
+  projectId: 'ba29a4b0642a94fd4dbc754841c2decb',
   chains: [ flare ],
   ssr: true,
 });
