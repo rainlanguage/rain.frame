@@ -21,7 +21,9 @@ export const allAbis = [
     "function deposit(address token, uint256 vaultId, uint256 amount) external",
 
     // for withdrawing from vault, is pretty similar to deposit
-    "function withdraw(address token, uint256 vaultId, uint256 targetAmount) external"
+    "function withdraw(address token, uint256 vaultId, uint256 targetAmount) external",
+
+    "function vaultBalance(address owner, address token, uint256 vaultId) external view returns (uint256 balance)"
 ];
 
 export const erc20Abi = [
