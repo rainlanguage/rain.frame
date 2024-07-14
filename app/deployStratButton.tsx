@@ -45,7 +45,7 @@ export const validOutputs = [{
 }];
 
 export default function DeployStratButton() {
-    const [transactionResponse, setTransactionResponse] = useState(null);
+    const [transactionHash, setTransactionHash] = useState(null);
 
     const encodeMeta = (data:any) => {
         return (
@@ -87,7 +87,7 @@ export default function DeployStratButton() {
     const addOrderData = orderbookContract.interface.encodeFunctionData("addOrder", [addOrderArgs]);
 
     // deposit amount
-    const depositAmount = "1"; // set desired deposit amount, should follow token decimals
+    const depositAmount = "10000"; // set desired deposit amount, should follow token decimals
     // deposit tx data
     const depositData = orderbookContract.interface.encodeFunctionData(
         "deposit",
@@ -105,17 +105,16 @@ export default function DeployStratButton() {
 
     // multicall tx
     const tx = await orderbookContract.multicall([addOrderData, depositData]);
-    setTransactionResponse(tx);
+    setTransactionHash(tx.hash);
   }
 
   return (
-    <div>
-        <button style={{ borderRadius: '10px', padding: '20px' }} onClick={deployStrategy}>deploy strat</button>
+    <div style={{paddingBottom: "60px"}}>
+        <button style={{ borderRadius: '10px', padding: '20px' }} onClick={deployStrategy}>Deploy DCA Strategy</button>
         <div style={{ marginTop: '20px' }}>
-            {transactionResponse && (
+            {transactionHash && (
             <div>
-                <h2>Transaction Response</h2>
-                <pre>{JSON.stringify(transactionResponse, null, 2)}</pre>
+                <a href={`https://flare-explorer.flare.network/tx/${transactionHash}`} target="_blank" rel="noopener noreferrer">View transaction on Blockscout</a>
             </div>
             )}
         </div>
