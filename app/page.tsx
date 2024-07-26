@@ -1,17 +1,18 @@
-import { getFrameMetadata } from 'frog/next';
-import type { Metadata } from 'next';
-import styles from './page.module.css';
-import DeployStratButton from './deployStratButton';
-import WithdrawButton from './withdraw';
+import { getFrameMetadata } from "frog/next";
+import type { Metadata } from "next";
+import styles from "./page.module.css";
+import DeployStratButton from "./deployStratButton";
+import WithdrawButton from "./withdraw";
+import { ComposeButton } from "./ComposeButton";
 
 export async function generateMetadata(): Promise<Metadata> {
   const frameTags = await getFrameMetadata(
-      `${process.env.VERCEL_URL || 'http://localhost:3000'}/api`,
-    )
-    return {
-      other: frameTags,
-    }
+    `${process.env.VERCEL_URL || "http://localhost:3000"}/api`
+  );
+  return {
+    other: frameTags,
   };
+}
 
 export default function Home() {
   return (
@@ -19,7 +20,8 @@ export default function Home() {
       <div>
         <DeployStratButton />
         <WithdrawButton />
+        <ComposeButton />
       </div>
     </main>
-  )
+  );
 }
