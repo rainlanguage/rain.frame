@@ -8,6 +8,7 @@ import { devtools } from "frog/dev";
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
 import yaml from "js-yaml";
+import fs from "fs";
 
 const app = new Frog({
   assetsPath: "/",
@@ -21,54 +22,9 @@ const app = new Frog({
   },
 });
 
-const yamlText = `
-gui:
-  name: DCA into WFLR
-  description: Buy FLARE!
-  deploymentOptions:
-    -   deployment: usd
-        name: DCA into WFLR with USD
-        fields:
-          - binding: amount
-            name: Amount
-            description: The amount of USD you want to spend each day.
-            min: 0
-            presets:
-              - 1
-              - 5
-              - 10
-          - binding: frequency
-            name: Frequency
-            description: Number of days between DCA purchases.
-            min: 0
-            presets:
-              - 1
-              - 7
-              - 14
-              - 28
-        deposit:
-          min: 20
-          presets: 
-            - 10
-            - 50
-            - 100
-    -   deployment: weth
-        name: DCA into WFLR with WETH
-        fields:
-          - binding: amount
-            name: Amount
-            description: The amount of WETH you want to spend each day.
-            presets:
-              - 0.001
-              - 0.002
-              - 0.005
-        deposit:
-          min: 0.01
-          presets:
-            - 0.01
-            - 0.02
-            - 0.05
-`;
+const yamlText = fs
+  .readFileSync("streaming-gui-example.rain", "utf8")
+  .split("---")[0];
 
 app.frame("/", async (c) => {
   const { buttonValue, inputText, deriveState } = c;
