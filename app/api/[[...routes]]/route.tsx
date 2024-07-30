@@ -1,7 +1,9 @@
 /** @jsxImportSource frog/jsx */
 
 // import { getRainlangTextFromDotrainText } from "@/app/Utilities/Composers";
-import { Button, Frog } from "frog";
+import { DeploymentOption, YamlData } from "@/app/types/yamlData";
+import { FrameImage } from "@/app/UI/FrameImage";
+import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
@@ -11,220 +13,269 @@ const app = new Frog({
   assetsPath: "/",
   basePath: "/api",
   title: "Rain Frame",
+  initialState: {
+    currentStep: "start",
+    deploymentOption: undefined,
+    bindings: {},
+    buttonPage: 0,
+  },
 });
 
-// Uncomment to use Edge Runtime
-// export const runtime = 'edge'
-
 const yamlText = `
-# This strategy will buy WFLR based on the price of the FTSO pair FLR/USD
-#
-# This strategy is a streaming strategy, meaning it has a fixed budget over time,
-# vs a cooldown with set amounts per trade.
-
-networks:
-  flare-dca:
-    rpc: https://rpc.ankr.com/flare
-    chain-id: 14
-    network-id: 14
-    currency: FLR
-
-subgraphs:
-  flare-dca: https://api.goldsky.com/api/public/project_clv14x04y9kzi01saerx7bxpg/subgraphs/ob-flare-0xb06202aA/1.0.0/gn
-  
-metaboards:
-  flare-dca: http://subgraphs.h20liquidity.tech/subgraphs/name/flare-mb-0x59401C93
-
-orderbooks:
-  flare-dca:
-    address: 0xb06202aA3Fe7d85171fB7aA5f17011d17E63f382
-
-deployers:
-  flare-dca:
-    address: 0xd58583e0C5C00C6DCF0137809EA58E9d55A72d66
-    network: flare-dca
-
-tokens:
-  eusdt:
-    network: flare-dca
-    address: 0x96B41289D90444B8adD57e6F265DB5aE8651DF29
-    decimals: 6
-  weth:
-    network: flare-dca
-    address: 0x96B41289D90444B8adD57e6F265DB5aE8651DF29
-    decimals: 6
-  wflr:
-    network: flare-dca
-    address: 0x1D80c49BbBCd1C0911346656B529DF9E5c2F783d
-    decimals: 18
-
-orders:
-  buy-wflr-w-usd:
-    orderbook: flare-dca
-    inputs:
-      - token: wflr
-        vault-id: 0xee4c4284a414696a5d768fb71329ffbb961a7184079aa0f25390deb29193b4f1
-    outputs:
-      - token: usdt
-        vault-id: 0xee4c4284a414696a5d768fb71329ffbb961a7184079aa0f25390deb29193b4f1
-      - token: usdc
-        vault-id: 0xee4c4284a414696a5d768fb71329ffbb961a7184079aa0f25390deb29193b4f1
-  buy-wflr-w-weth:
-    orderbook: flare-dca
-    inputs:
-      - token: wflr
-        vault-id: 0xee4c4284a414696a5d768fb71329ffbb961a7184079aa0f25390deb29193b4f1
-    outputs:
-      - token: weth
-        vault-id: 0xee4c4284a414696a5d768fb71329ffbb961a7184079aa0f25390deb29193b4f1
-
-scenarios:
-  default:
-    deployer: flare-dca
-    runs: 1
-    bindings:
-      start-time: 123456
-  other:
-    deployer: flare-dca
-    runs: 1
-    bindings:
-
-deployments:
-  usd:
-    scenario: default
-    order: buy-wflr-w-usd
-  weth:
-    scenario: other
-    order: buy-wflr-w-weth
-
 gui:
   name: DCA into WFLR
   description: Buy FLARE!
-  usd-option:
-    deployment: usd
-    name: DCA into WFLR with USD
-    fields:
-      - binding: amount
-        name: Amount
-        description: The amount of USD you want to spend each day.
-        min: 0
-        presets:
-          - 1
-          - 5
-          - 10
-    deposit:
-      min: 20
-      presets: 
-        - 10
-        - 50
-        - 100
-  weth:
-    deployment: weth
-    name: DCA into WFLR with WETH
-    fields:
-      - binding: amount
-        name: Amount
-        description: The amount of WETH you want to spend each day.
-        presets:
-          - 0.001
-          - 0.002
-          - 0.005
-    deposit:
-      min: 0.01
-      presets:
-        - 0.01
-        - 0.02
-        - 0.05
-      
-
-charts:
-  DCA Strategy:
-    scenario: default
-    metrics:
-      - label: Time elapsed
-        description: (in seconds)
-        value: 0.3
-      - label: Budget to date
-        unit-prefix: $
-        value: 0.4
-      - label: FLR-USD
-        unit-prefix: $
-        value: 0.7
-      - label: USD-FLR
-        value: 0.8
-        unit-suffix: " FLR"
-      - label: Final USD-FLR
-        value: 0.10
-        unit-suffix: " FLR"
+  deploymentOptions:
+    -   deployment: usd
+        name: DCA into WFLR with USD
+        fields:
+          - binding: amount
+            name: Amount
+            description: The amount of USD you want to spend each day.
+            min: 0
+            presets:
+              - 1
+              - 5
+              - 10
+          - binding: frequency
+            name: Frequency
+            description: Number of days between DCA purchases.
+            min: 0
+            presets:
+              - 1
+              - 7
+              - 14
+              - 28
+        deposit:
+          min: 20
+          presets: 
+            - 10
+            - 50
+            - 100
+    -   deployment: weth
+        name: DCA into WFLR with WETH
+        fields:
+          - binding: amount
+            name: Amount
+            description: The amount of WETH you want to spend each day.
+            presets:
+              - 0.001
+              - 0.002
+              - 0.005
+        deposit:
+          min: 0.01
+          presets:
+            - 0.01
+            - 0.02
+            - 0.05
 `;
 
 app.frame("/", async (c) => {
-  const { buttonValue, status } = c;
-  // // Proof of concept for Dotrain composition
-  // if (buttonValue === "compose") {
-  //   const dotrainText = `---
-  //     #some-binding 100
+  const { buttonValue, inputText, deriveState } = c;
+  const yamlData = yaml.load(yamlText) as YamlData;
 
-  //     #abcd
-  //     _ _: 1 some-binding,
-  //     _: call<'another-source>();
+  // Derive the new state based on the current state and the button value
+  const currentState: any = deriveState((previousState: any) => {
+    // Handle page navigation
+    if (buttonValue === "backToButtons") {
+      previousState.showTextInput = false;
+      return;
+    } else if (buttonValue === "previousButtonPage") {
+      previousState.buttonPage--;
+      return;
+    } else if (buttonValue === "nextButtonPage") {
+      previousState.buttonPage++;
+      return;
+    } else if (buttonValue === "showTextInput") {
+      previousState.showTextInput = true;
+      return;
+    }
 
-  //     #efgh
-  //     _ : sub(1 2);
+    // Handle state transitions
+    switch (previousState.currentStep) {
+      case "start":
+        const deploymentOptions = Object.values(yamlData.gui.deploymentOptions);
+        if (deploymentOptions.length === 1) {
+          // Deployment step can be skipped if there is only one deployment
+          previousState.deployment = deploymentOptions[0].deployment;
+          previousState.currentStep = "fields";
+        } else {
+          previousState.currentStep = "deployment";
+        }
+        break;
+      case "deployment":
+        previousState.deploymentOption = yamlData.gui.deploymentOptions.find(
+          (deploymentOption: DeploymentOption) =>
+            deploymentOption.deployment === buttonValue
+        );
+        previousState.currentStep = "fields";
+        break;
+      case "fields":
+        let currentBindingsCount = Object.keys(previousState.bindings).length;
+        const fields = previousState.deploymentOption.fields;
 
-  //     #another-source
-  //     _ _: 1 2;
+        if (buttonValue === "submit") {
+          if (inputText && inputText >= fields[currentBindingsCount].min) {
+            const currentField = fields[currentBindingsCount];
+            previousState.bindings[currentField.binding] = inputText;
+            previousState.showTextInput = false;
+            currentBindingsCount++;
+            previousState.buttonPage = 0;
+          }
+        } else if (buttonValue === "back") {
+          if (currentBindingsCount === 0) {
+            previousState.currentStep = "deployment";
+          } else {
+            const currentField = fields[currentBindingsCount - 1];
+            delete previousState.bindings[currentField.binding];
+          }
+        } else {
+          const currentField = fields[currentBindingsCount];
+          previousState.bindings[currentField.binding] = buttonValue;
+          currentBindingsCount++;
+          previousState.buttonPage = 0;
+        }
+        // If all bindings are filled, we can move to the next step
+        if (currentBindingsCount >= fields.length) {
+          previousState.currentStep = "deposit";
+        }
+        break;
+      case "deposit":
+        if (buttonValue === "submit") {
+          if (
+            inputText &&
+            inputText >= previousState.deploymentOption.deposit.min
+          ) {
+            previousState.deposit = inputText;
+            previousState.showTextInput = false;
+          }
+        } else if (buttonValue === "back") {
+          const currentField =
+            previousState.deploymentOption.fields[
+              Object.keys(previousState.bindings).length - 1
+            ];
+          delete previousState.bindings[currentField.binding];
+          previousState.currentStep = "fields";
+        } else {
+          previousState.deposit = buttonValue;
+        }
+        if (previousState.deposit > 0) {
+          previousState.currentStep = "review";
+          previousState.buttonPage = 0;
+        }
+        break;
+      case "review":
+        if (buttonValue === "back") {
+          previousState.currentStep = "deposit";
+        } else if (buttonValue === "submit") {
+          previousState.currentStep = "done";
+        }
+        break;
+      case "done":
+        previousState.currentStep = "start";
+        previousState.deploymentOption = undefined;
+        previousState.bindings = {};
+        break;
+    }
+  });
 
-  //     #third
-  //     _: 10;
-  //   `;
-  //   const rainlangText = await getRainlangTextFromDotrainText(dotrainText);
-  //   console.log(rainlangText);
-  // }
-  const yamlData = yaml.load(yamlText);
-  // console.log(yamlData);
+  // Helper functions to get intents
+  const getPaginatedIntents = (allButtons: any[]): any[] => {
+    const buttonPageOffset = currentState.buttonPage * 3;
+    let buttonEndIndex = buttonPageOffset + 4;
+    const includeMoreButton = buttonEndIndex < allButtons.length;
+    if (includeMoreButton) {
+      buttonEndIndex--;
+    }
+    return [
+      ...(allButtons.length <= 3
+        ? allButtons
+        : [
+            currentState.buttonPage > 0 && (
+              <Button value="previousButtonPage">{"<"}</Button>
+            ),
+            ...allButtons.slice(buttonPageOffset, buttonEndIndex),
+            includeMoreButton && (
+              <Button value="nextButtonPage">{"More"}</Button>
+            ),
+          ]),
+    ];
+  };
+  const getTextInputIntents = (minimum: number): any[] => {
+    return [
+      <TextInput placeholder={`Enter value greater than ${minimum}`} />,
+      <Button value="backToButtons">{"<"}</Button>,
+      <Button value="submit">Submit</Button>,
+    ];
+  };
+
+  // Define intents based on the current state
+  let intents: any[] = [];
+  switch (currentState.currentStep) {
+    case "start":
+      intents = [<Button value="start">Start</Button>];
+      break;
+    case "deployment":
+      const allButtons = yamlData.gui.deploymentOptions.map(
+        (deploymentOption: DeploymentOption) => (
+          <Button value={deploymentOption.deployment}>
+            {deploymentOption.name}
+          </Button>
+        )
+      );
+      intents = getPaginatedIntents(allButtons);
+      break;
+    case "fields":
+      const field =
+        currentState.deploymentOption.fields[
+          Object.keys(currentState.bindings).length
+        ];
+      if (currentState.showTextInput) {
+        intents = getTextInputIntents(field.min);
+      } else {
+        const allButtons = [
+          <Button value="back">{"<"}</Button>,
+          ...field.presets.map((preset: number) => (
+            <Button value={`${preset}`}>{String(preset)}</Button>
+          )),
+          field.min !== undefined && (
+            <Button value="showTextInput">Custom</Button>
+          ),
+        ];
+        intents = getPaginatedIntents(allButtons);
+      }
+      break;
+    case "deposit":
+      const deposit = currentState.deploymentOption.deposit;
+      if (currentState.showTextInput) {
+        intents = getTextInputIntents(deposit.min);
+      } else {
+        const allButtons = [
+          <Button value="back">{"<"}</Button>,
+          ...deposit.presets.map((preset: number) => (
+            <Button value={`${preset}`}>{String(preset)}</Button>
+          )),
+          deposit.min !== undefined && (
+            <Button value="showTextInput">Custom</Button>
+          ),
+        ];
+        intents = getPaginatedIntents(allButtons);
+      }
+      break;
+    case "review":
+      intents = [
+        <Button value="back">{"<"}</Button>,
+        <Button value="submit">Submit</Button>,
+      ];
+      break;
+    case "done":
+      intents = [<Button value="restart">Start over</Button>];
+      break;
+  }
 
   return c.res({
-    image: (
-      <div
-        style={{
-          alignItems: "center",
-          background:
-            status === "response"
-              ? "linear-gradient(to right, #432889, #17101F)"
-              : "black",
-          backgroundSize: "100% 100%",
-          display: "flex",
-          flexDirection: "column",
-          flexWrap: "nowrap",
-          height: "100%",
-          justifyContent: "center",
-          textAlign: "center",
-          width: "100%",
-        }}
-      >
-        <div
-          style={{
-            color: "white",
-            fontSize: 60,
-            fontStyle: "normal",
-            letterSpacing: "-0.025em",
-            lineHeight: 1.4,
-            marginTop: 30,
-            padding: "0 120px",
-            whiteSpace: "pre-wrap",
-          }}
-        >
-          Ape into wFLR with 1 eUSDT per day
-        </div>
-      </div>
-    ),
-    intents: [
-      <Button value="compose">Compose</Button>,
-      !buttonValue && (
-        <Button.Link href="http://localhost:3000/">Ape</Button.Link>
-      ),
-    ],
+    image: <FrameImage guiOptions={yamlData.gui} currentState={currentState} />,
+    intents: intents,
   });
 });
 
