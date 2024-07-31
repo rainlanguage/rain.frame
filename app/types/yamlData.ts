@@ -21,7 +21,7 @@ export interface DeploymentOption {
 export interface Gui {
   name: string;
   description: string;
-  deploymentOptions: DeploymentOption[];
+  deployments: DeploymentOption[];
 }
 
 export interface YamlData {

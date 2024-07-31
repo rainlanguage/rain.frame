@@ -50,7 +50,7 @@ app.frame("/", async (c) => {
     // Handle state transitions
     switch (previousState.currentStep) {
       case "start":
-        const deploymentOptions = Object.values(yamlData.gui.deploymentOptions);
+        const deploymentOptions = Object.values(yamlData.gui.deployments);
         if (deploymentOptions.length === 1) {
           // Deployment step can be skipped if there is only one deployment
           previousState.deployment = deploymentOptions[0].deployment;
@@ -171,7 +171,7 @@ app.frame("/", async (c) => {
       intents = [<Button value="start">Start</Button>];
       break;
     case "deployment":
-      const allButtons = yamlData.gui.deploymentOptions.map(
+      const allButtons = yamlData.gui.deployments.map(
         (deploymentOption: DeploymentOption) => (
           <Button value={JSON.stringify(deploymentOption)}>
             {deploymentOption.name}

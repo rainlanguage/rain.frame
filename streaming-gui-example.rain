@@ -81,7 +81,7 @@ deployments:
 gui:
   name: DCA into WFLR
   description: Buy FLARE!
-  deploymentOptions:
+  deployments:
     -   deployment: usd
         name: DCA into WFLR with USD
         fields:
