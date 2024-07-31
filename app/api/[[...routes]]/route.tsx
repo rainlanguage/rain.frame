@@ -10,25 +10,28 @@ import { serveStatic } from "frog/serve-static";
 import yaml from "js-yaml";
 import fs from "fs";
 
+const yamlText = fs
+  .readFileSync("streaming-gui-example.rain", "utf8")
+  .split("---")[0];
+const yamlData = yaml.load(yamlText) as YamlData;
+
 const app = new Frog({
   assetsPath: "/",
   basePath: "/api",
   title: "Rain Frame",
   initialState: {
+    strategyName: yamlData.gui.name,
     currentStep: "start",
     deploymentOption: undefined,
     bindings: {},
+    deposit: undefined,
     buttonPage: 0,
+    error: undefined,
   },
 });
 
-const yamlText = fs
-  .readFileSync("streaming-gui-example.rain", "utf8")
-  .split("---")[0];
-
 app.frame("/", async (c) => {
   const { buttonValue, inputText, deriveState } = c;
-  const yamlData = yaml.load(yamlText) as YamlData;
 
   // Derive the new state based on the current state and the button value
   const currentState: any = deriveState((previousState: any) => {
@@ -76,6 +79,9 @@ app.frame("/", async (c) => {
             previousState.showTextInput = false;
             currentBindingsCount++;
             previousState.buttonPage = 0;
+            previousState.error = undefined;
+          } else {
+            previousState.error = `Value must be at least ${fields[currentBindingsCount].min}`;
           }
         } else if (buttonValue === "back") {
           if (currentBindingsCount === 0) {
@@ -103,6 +109,9 @@ app.frame("/", async (c) => {
           ) {
             previousState.deposit = inputText;
             previousState.showTextInput = false;
+            previousState.error = undefined;
+          } else {
+            previousState.error = `Value must be at least ${previousState.deploymentOption.deposit.min}`;
           }
         } else if (buttonValue === "back") {
           const currentField =
@@ -121,6 +130,7 @@ app.frame("/", async (c) => {
         break;
       case "review":
         if (buttonValue === "back") {
+          previousState.deposit = undefined;
           previousState.currentStep = "deposit";
         } else if (buttonValue === "submit") {
           previousState.currentStep = "done";
@@ -229,7 +239,7 @@ app.frame("/", async (c) => {
   }
 
   return c.res({
-    image: <FrameImage guiOptions={yamlData.gui} currentState={currentState} />,
+    image: <FrameImage currentState={currentState} />,
     intents: intents,
   });
 });

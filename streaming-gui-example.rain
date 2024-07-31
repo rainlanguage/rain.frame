@@ -88,7 +88,7 @@ gui:
           - binding: amount
             name: Amount
             description: The amount of USD you want to spend each day.
-            min: 0
+            min: 10
             presets:
               - 1
               - 5
@@ -96,7 +96,7 @@ gui:
           - binding: frequency
             name: Frequency
             description: Number of days between DCA purchases.
-            min: 0
+            min: 10
             presets:
               - 1
               - 7

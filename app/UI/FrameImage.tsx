@@ -79,7 +79,7 @@ export const FrameImage = ({
           justifyContent: "center",
         }}
       >
-        {currentState.currentStep === "start" ? guiOptions.name : ""}
+        {currentState.currentStep === "start" ? currentState.strategyName : ""}
         {currentState.currentStep === "deployment" ? "Choose a deployment" : ""}
         {currentState.currentStep === "fields" && currentState.deploymentOption
           ? currentState.deploymentOption.fields[
@@ -123,6 +123,15 @@ export const FrameImage = ({
         )}
         {currentState.currentStep === "done" ? "Done!" : ""}
       </div>
+      {currentState.error ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <span style={{ color: "red", fontSize: 50 }}>
+            {currentState.error}
+          </span>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };
