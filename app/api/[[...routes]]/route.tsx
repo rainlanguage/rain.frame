@@ -60,11 +60,10 @@ app.frame("/", async (c) => {
         }
         break;
       case "deployment":
-        previousState.deploymentOption = yamlData.gui.deploymentOptions.find(
-          (deploymentOption: DeploymentOption) =>
-            deploymentOption.deployment === buttonValue
-        );
-        previousState.currentStep = "fields";
+        if (buttonValue) {
+          previousState.deploymentOption = JSON.parse(buttonValue);
+          previousState.currentStep = "fields";
+        }
         break;
       case "fields":
         let currentBindingsCount = Object.keys(previousState.bindings).length;
@@ -174,7 +173,7 @@ app.frame("/", async (c) => {
     case "deployment":
       const allButtons = yamlData.gui.deploymentOptions.map(
         (deploymentOption: DeploymentOption) => (
-          <Button value={deploymentOption.deployment}>
+          <Button value={JSON.stringify(deploymentOption)}>
             {deploymentOption.name}
           </Button>
         )
