@@ -1,10 +1,6 @@
 /** @jsxImportSource frog/jsx */
 
-export const FrameImage = ({
-  guiOptions,
-  currentState,
-  setCurrentState,
-}: any) => {
+export const FrameImage = ({ currentState }: any) => {
   // Total steps are the number of fields + 4 (deployment, deposit, review, and done)
   // TODO: calculate this all dynamically based on fields for more accurate progress bar
   const totalStepCount = 5;

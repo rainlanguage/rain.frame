@@ -26,6 +26,7 @@ const app = new Frog({
     bindings: {},
     deposit: undefined,
     buttonPage: 0,
+    showTextInput: false,
     error: undefined,
   },
 });
@@ -239,8 +240,21 @@ app.frame("/", async (c) => {
   }
 
   return c.res({
+    image: `${c.req.url}/frameImage?currentState=${encodeURIComponent(
+      JSON.stringify(currentState)
+    )}`,
+    intents,
+  });
+});
+
+app.image("/frameImage", async (c) => {
+  const currentState = JSON.parse(c.req.query("currentState") as string);
+  currentState.strategyName = yamlData.gui.name;
+  return c.res({
     image: <FrameImage currentState={currentState} />,
-    intents: intents,
+    headers: {
+      "cache-control": "max-age=0",
+    },
   });
 });
 

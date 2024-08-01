@@ -14,13 +14,29 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function Home() {
+export default async function Home() {
+  const currentState = {
+    currentStep: "start",
+    deploymentOption: undefined,
+    bindings: {},
+    deposit: undefined,
+    buttonPage: 0,
+    showTextInput: false,
+    error: undefined,
+  };
   return (
     <main className={styles.main}>
       <div>
         <DeployStratButton />
         <WithdrawButton />
         <ComposeButton />
+      </div>
+      <div>
+        <img
+          src={`http://localhost:3000/api/frameImage?currentState=${encodeURIComponent(
+            JSON.stringify(currentState)
+          )}`}
+        />
       </div>
     </main>
   );
